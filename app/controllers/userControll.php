@@ -45,11 +45,12 @@ class UserCotroll {
     }
 
     $userModel = new Users($conn);
-    $userId = $userModel->login($userName, $password);
+    $user = $userModel->login($userName, $password);
 
-    if($userId){
+    if($user){
       session_start();
-      $_SESSION['user_id'] = $userId;
+      $_SESSION['user_id'] = $user;
+      setcookie($user['id'], $user['name'], $user['lastName'], $user['role']);
       header("Location: ../../views/dashboard/dashboard.php");;
       exit;
     } else {

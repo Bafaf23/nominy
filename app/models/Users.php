@@ -51,7 +51,7 @@ class Users{
       $user = $result->fetch_assoc();
       
       if (password_verify($pass, $user['pass'])) {
-        return $user['id']; 
+        return $user; 
       }
     }
     return false;
