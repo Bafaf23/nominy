@@ -48,5 +48,5 @@ CREATE TABLE IF NOT EXISTS users(
 ---------------------------------------------------------
 
 -- Users
---!Este es el usurio poderoso Usasalo con sabiduria
+--Este es el usurio poderoso, usasalo con sabiduria
 INSERT INTO users (dni, name, last_name, email, pass, date_entry, id_role) VALUE("V-00001", "Angelica", "Rivas", "superadmin@mominy.com", "admin123", "1-01-1999", 6)

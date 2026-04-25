@@ -37,5 +37,24 @@ class Users{
       return false;
     }
   }
+
+  public function login($userName, $pass){
+    $sql = 'SELECT * FROM users WHERE email = ?';
+
+    $stmt = $this->db->prepare($sql);
+    $stmt->bind_param("s", $userName); 
+    $stmt->execute();
+
+    $result = $stmt->get_result();
+
+    if($result->num_rows === 1){
+      $user = $result->fetch_assoc();
+      
+      if (password_verify($pass, $user['pass'])) {
+        return $user['id']; 
+      }
+    }
+    return false;
+  }
 }
 ?>

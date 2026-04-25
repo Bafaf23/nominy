@@ -8,7 +8,7 @@
 </head>
 <body class="bg-gray-100 flex justify-center items-center h-screen">
   <main class="w-full max-w-md px-4">
-    <form action="" class="bg-white rounded-2xl shadow-xl p-10 space-y-6">
+    <form action="app/controllers/userControll.php" class="bg-white rounded-2xl shadow-xl p-10 space-y-6" method="post">
       <header class="text-center">
         <h1 class="text-3xl text-orange-600 font-extrabold">Inicia sesión</h1>
         <p class="text-gray-500 text-sm mt-2">Bienvenido de nuevo a NOMINY</p>
@@ -42,7 +42,7 @@
           </button>
         </div>
       </div>
-
+      <input type="hidden" name="action" value="login">
       <button class="bg-orange-500 hover:bg-orange-600 active:scale-95 transition-transform p-4 rounded-xl w-full text-white text-lg font-bold shadow-lg shadow-orange-200">
         Entrar
       </button>
