@@ -3,12 +3,12 @@ $pageTitle = "Mi nomina - Nominy";
 include "layout.php";
 
 $user = [
-  "dni" => "V-30021867",
-  "name"=> "Bryant",
-  "lastName" => "Facenda",
-  "role" => "Development",
-  "bank" => "BBVA",
-  "countBank" => "123456789987"
+  "dni" => isset($_SESSION['dni']) ? $_SESSION['dni'] : "No asignada" ,
+  "name"=> isset($_SESSION['name']) ? $_SESSION['name'] : "No asignada" ,
+  "lastName" => isset($_SESSION['lastName']) ? $_SESSION['lastName'] : "No asignada" ,
+  "role" => isset($_SESSION['name_role']) ? $_SESSION['name_role'] : "No asignada" ,
+  "bank" =>  isset($_SESSION['bank']) ? $_SESSION['bank'] : "No asignada",
+  "countBank" => isset($_SESSION['account']) ? $_SESSION['account'] : "No asignada"
 ];
 ?>
 

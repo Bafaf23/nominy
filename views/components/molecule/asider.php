@@ -8,7 +8,8 @@ $links = [
   [
     "icon" => '<i class="fa-solid fa-users"></i>',
     "label" => "Personal",
-    "href" => "#"
+    "href" => "#",
+    "role" => "RRHH"
   ],
   [
     "icon" => '<i class="fa-solid fa-receipt"></i>',
@@ -26,9 +27,9 @@ $links = [
         </div>
         <div>
             <h1 class="text-lg font-bold text-orange-500">Hola, 
-              <span class="text-gray-700"><?php echo $nombreUsuario; ?></span>
+              <span class="text-gray-700"> <?php echo $_SESSION["name"];?></span>
             </h1>
-            <span class="text-gray-400 text-xs font-bold uppercase"><?php echo $rolUsuario; ?></span>
+            <span class="text-gray-400 text-xs font-bold uppercase"> <?php echo $_SESSION["name_role"];?></span>
         </div>
       </div>
 
@@ -36,10 +37,17 @@ $links = [
       <nav class="mt-6 space-y-2">
         <?php
         $router = basename($_SERVER['SCRIPT_NAME']);
+        $rol_actual = isset($_SESSION["role_name"]) ? $_SESSION["role_name"] : "";
 
         foreach($links as $link){
           $isActive = ($router === $link["href"]);
+
+          if ($link["label"] === "Personal" && $rol_actual !== "RRHH") {
+            continue;
+        }
+
           $class = $isActive ? 'bg-orange-50 text-orange-600 font-bold' : 'text-gray-600 hover:bg-gray-50 font-semibold';
+
           echo '
           <a href="' . $link["href"] . '" class="flex items-center gap-3 p-3 ' . $class . ' rounded-xl transition-all">
             <span>' . $link["icon"] . '</span> 

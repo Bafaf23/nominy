@@ -27,7 +27,8 @@ class UserCotroll {
     $result = $userModel->register($dni, $name, $lastName, $email, $pass);
 
     if($result === TRUE){
-      header("Location:../../views/register.php?success=registrado");
+      header("Location:../../index.php");
+      exit;
     } else {
       echo "Error: " . ($result ?: "No se pudo conectar con la base de datos.");
     }
@@ -48,13 +49,25 @@ class UserCotroll {
     $user = $userModel->login($userName, $password);
 
     if($user){
-      session_start();
-      $_SESSION['user_id'] = $user;
-      setcookie($user['id'], $user['name'], $user['lastName'], $user['role']);
+      if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+      } 
+
+      $_SESSION['user_id']  = $user['id'];
+      $_SESSION['dni']      = $user['dni'];
+      $_SESSION['name']     = $user['name'];
+      $_SESSION['lastName'] = $user['last_name'];
+      $_SESSION['id_role'] = $user['id_role'];
+      $_SESSION['name_role']     = $user['name_role'];
+      $_SESSION['date_entry'] = $user['date_entry'];
+      $_SESSION['salary'] = $user['salary'];
+      $_SESSION['id_bonuses'] = $user['id_bonuses'];
+
+
       header("Location: ../../views/dashboard/dashboard.php");;
       exit;
     } else {
-      header("Location: ../../index.php?error=datos_incorrectos");
+        header("Location: ../../index.php?msg=Credenciales incorrectas o cuenta aún no aprobada por RRHH&type=error");
       exit;
     }
   }

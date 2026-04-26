@@ -6,6 +6,9 @@
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <title>Registrate | Nominy</title>
 </head>
+<?php
+include_once "components/atom/message.php";
+?>
 <body  class="bg-gray-100 flex flex-col lg:flex-row justify-center items-center min-h-screen p-4 gap-6">
   <div class="max-w-md mt-6 lg:mt-0 lg:ml-6 p-6 rounded-2xl bg-blue-50 border border-blue-100 shadow-sm self-center">
     <div class="flex items-start gap-4">
@@ -25,17 +28,26 @@
   </div>
   <main class="w-full max-w-md px-4">
     <form action="../app/controllers/userControll.php" class="bg-white rounded-2xl shadow-xl p-10 space-y-6" method="POST">
-      <?php if (isset($_GET['error'])): ?>
-        <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4 rounded shadow-sm">
-          <p class="font-bold">Error</p>
-          <p>
-            <?php 
-            echo ($_GET['error'] == 'no_coinciden') ? "Las contraseñas no coinciden." : "Por favor, llena todos los campos."; 
-            ?>
-          </p>
-        </div>
-      <?php endif; ?>
+  <?php
+  // Verificamos si en la URL viene la palabra "success"
+  if (isset($_GET['success'])) {
+    
+    // Si dice campo_vacios
+    if ($_GET['success'] === 'campo_vacios') {
+        echo message("Los campos no pueden estar vacíos", "error");
+    }
+    
+    // Si dice no_coinciden
+    if ($_GET['success'] === 'no_coinciden') {
+        echo message("Las contraseñas no son iguales", "error");
+    }
 
+    // Si dice registrado
+    if ($_GET['success'] === 'registrado') {
+        echo message("¡Bienvenido! Te has registrado con éxito", "success");
+    }
+  }
+  ?>
       <header class="text-center">
         <h1 class="text-3xl text-orange-600 font-extrabold">Registrate</h1>
         <p class="text-gray-500 text-sm mt-2">Bienvenido de nuevo a NOMINY</p>

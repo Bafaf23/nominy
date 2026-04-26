@@ -8,15 +8,13 @@ if (!isset($_SESSION['user_id'])) {
   exit;
 }
 
-$nombreUsuario = "Bryant"; 
-$inicial = substr($nombreUsuario, 0, 1);
-$rolUsuario = "Desarrollador";
-$fecha_ingreso = "23-2-1999";
+$nombre_seguro = $_SESSION['name'];
+$inicial = substr($nombre_seguro, 0, 1);
 
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -27,5 +25,5 @@ $fecha_ingreso = "23-2-1999";
   <title><?php echo isset($pageTitle) ? $pageTitle : "Sistema Nominy"; ?></title>
 </head>
 <body class="bg-gray-100 h-screen flex p-4 gap-4">
-  <?php include __DIR__ . "../../components/molecule/asider.php";?>
+  <?php include __DIR__ . "/../components/molecule/asider.php";?>
   <main class="flex-1 bg-white rounded-2xl shadow-xl p-8 flex flex-col">

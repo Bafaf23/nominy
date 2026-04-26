@@ -2,9 +2,7 @@
 $pageTitle = "Panel inicio - Nominy";
 
 include "layout.php";
-
 ?>
-<!-- CONTENIDO PRINCIPAL -->
 
 <header class="border-b border-gray-100 pb-4">
   <h2 class="text-2xl font-bold text-gray-800">Tablero Principal</h2>
@@ -20,23 +18,23 @@ include "layout.php";
     $info = [
       [ 
         "label" => "Fecha de ingreso", 
-        "value" => "23-2-2003" 
+        "value" => isset($_SESSION['date_entry']) ? $_SESSION['date_entry'] : "No asignada"
       ],
       [ 
         "label" => "Salario", 
-        "value" => "$2323" 
+        "value" =>isset($_SESSION['salary']) ? "$" . $_SESSION['salary'] : "No asignada" 
       ],
       [ 
         "label" => "Bono", 
-        "value" => "$2323" 
+        "value" => isset($_SESSION['id_bonuses']) ? $_SESSION['id_bonuses'] : "No asignada" 
       ],
       [ 
         "label" => "Cargo", 
-        "value" => "Development" 
+        "value" => isset($_SESSION['name_role']) ? $_SESSION['name_role'] : "No asignada"
       ],
       [ 
         "label" => "Salario total", 
-        "value" => "$2333" 
+        "value" => 0 
       ]
     ];
 

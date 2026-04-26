@@ -6,9 +6,27 @@
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <title>Inicio | Nominy</title>
 </head>
+<?php
+include_once "views/components/atom/message.php";
+?>
 <body class="bg-gray-100 flex justify-center items-center h-screen">
+<div class="mt-4">
+</div>
   <main class="w-full max-w-md px-4">
     <form action="app/controllers/userControll.php" class="bg-white rounded-2xl shadow-xl p-10 space-y-6" method="post">
+    <?php
+  if (isset($_GET['error'])) {
+    if ($_GET['error'] === 'datos_incorrectos') {
+        echo message("Correo o contrasena invalidos", "error");
+    }
+  }
+  if (isset($_GET['msg'])) {
+    $msg = $_GET['msg'];
+    $type =  isset($_GET['type']) ? $_GET['type'] : 'error';
+
+    echo message($msg, $type);
+  }
+  ?>
       <header class="text-center">
         <h1 class="text-3xl text-orange-600 font-extrabold">Inicia sesión</h1>
         <p class="text-gray-500 text-sm mt-2">Bienvenido de nuevo a NOMINY</p>
