@@ -8,8 +8,7 @@ $links = [
   [
     "icon" => '<i class="fa-solid fa-users"></i>',
     "label" => "Personal",
-    "href" => "#",
-    "role" => "RRHH"
+    "href" => "personal.php",
   ],
   [
     "icon" => '<i class="fa-solid fa-receipt"></i>',
@@ -42,9 +41,9 @@ $links = [
         foreach($links as $link){
           $isActive = ($router === $link["href"]);
 
-          if ($link["label"] === "Personal" && $rol_actual !== "RRHH") {
+          if ($link["label"] === "personal.php" && $rol_actual !== "RRHH") {
             continue;
-        }
+          }
 
           $class = $isActive ? 'bg-orange-50 text-orange-600 font-bold' : 'text-gray-600 hover:bg-gray-50 font-semibold';
 
@@ -59,6 +58,7 @@ $links = [
       </nav>
     </div>
 
+    
     <!-- Botón Cerrar Sesión -->
     <form action="../../app/controllers/logoutControll.php" method="POST" class="mt-auto">
       <button type="submit" class="w-full flex items-center gap-3 p-3 text-red-500 hover:bg-red-50 rounded-xl font-bold transition-all">
@@ -68,4 +68,7 @@ $links = [
         Cerrar sesión
       </button>
     </form>
+    <footer class="mt-2 text-gray-400 text-xs font-medium">
+      &copy; 2026 Nominy. Todos los derechos reservados - Bryant Facenda
+    </footer>
   </aside>

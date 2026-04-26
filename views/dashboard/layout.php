@@ -26,4 +26,5 @@ $inicial = substr($nombre_seguro, 0, 1);
 </head>
 <body class="bg-gray-100 h-screen flex p-4 gap-4">
   <?php include __DIR__ . "/../components/molecule/asider.php";?>
-  <main class="flex-1 bg-white rounded-2xl shadow-xl p-8 flex flex-col">
+    <main class="flex-1 bg-white rounded-2xl shadow-xl p-8 flex flex-col">
+  

@@ -15,6 +15,9 @@ include "layout.php";
 
 <section class="mt-6 flex gap-2 flex-row justify-evenly">
   <?php
+  $salary =  $_SESSION['salary'];
+  $bone = $_SESSION['id_bonuses'] ? 0 : 0;
+
     $info = [
       [ 
         "label" => "Fecha de ingreso", 
@@ -34,7 +37,7 @@ include "layout.php";
       ],
       [ 
         "label" => "Salario total", 
-        "value" => 0 
+        "value" =>"$". $salary + $bone, 
       ]
     ];
 
@@ -50,15 +53,12 @@ include "layout.php";
 </section>
 
 <section class="mt-6 bg-gray-50 border border-gray-200 rounded-2xl flex flex-row flex-1 p-1 gap-2">
-  <section  ection class="w-1/2 border-r border-gray-300 p-2">
+  <section class="w-1/2 border-r border-gray-300 p-2">
     <h2 class="text-gray-600 font-medium">Bonos de tallados</h2>
       <section class="mt-4">
         <?php
           $bones = [
-            [
-              "nameBone"=>"Trasnporte", 
-              "monte"=> "$20"
-            ]
+            
           ];
 
             if(empty($bones)){
@@ -89,6 +89,19 @@ include "layout.php";
 
     <section class="w-1/2 p-2">
       <h2 class="text-gray-600 font-medium">Noticias</h2>
+      
+      <div class="relative h-90 w-full rounded-2xl overflow-hidden group shadow-xs mt-3">
+        <!-- Imagen optimizada: object-cover evita que se estire -->
+        <img src="https://mrrecluta.com/wp-content/uploads/2025/05/blog-por-que-la-gestion-de-nomina-es-clave.webp" alt="Información sobre gestión de nómina" class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" > 
+        <!-- Capa de sombra (Overlay) para que el texto blanco sea 100% legible -->
+        <div class="absolute inset-0 bg-gradient-to-t from-gray-900 via-transparent to-transparent"></div>
+        <!-- Texto posicionado en la esquina inferior -->
+        <div class="absolute bottom-0 left-0 p-5">
+          <span class="bg-orange-500 text-white text-xs px-2 py-1 rounded-lg font-bold uppercase">Tips</span>
+            <h3 class="text-white font-bold text-xl mt-2">¡La mejor forma de llevar tu nómina!</h3>
+            <p class="text-gray-200 text-sm mt-1">Descubre cómo optimizar los procesos de tu empresa.</p>
+        </div>
+      </div>
     </section>
 </section>
 

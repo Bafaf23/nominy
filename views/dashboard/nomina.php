@@ -8,7 +8,8 @@ $user = [
   "lastName" => isset($_SESSION['lastName']) ? $_SESSION['lastName'] : "No asignada" ,
   "role" => isset($_SESSION['name_role']) ? $_SESSION['name_role'] : "No asignada" ,
   "bank" =>  isset($_SESSION['bank']) ? $_SESSION['bank'] : "No asignada",
-  "countBank" => isset($_SESSION['account']) ? $_SESSION['account'] : "No asignada"
+  "countBank" => isset($_SESSION['account']) ? $_SESSION['account'] : "No asignada",
+  "date_entry" => isset($_SESSION['date_entry']) ? $_SESSION['date_entry'] : "No asignada"
 ];
 ?>
 
@@ -43,9 +44,15 @@ $user = [
         <h3 class="font-bold text-gray-700">Información del Empleado</h3>
       </div>
       <div class="space-y-2">
-        <div>
-          <p class="text-xs text-gray-400 font-bold uppercase">Nombres y Apellidos</p>
-          <p class="text-gray-700 font-bold text-lg"><?php echo $user['name'] . ' ' . $user['lastName']; ?></p>
+        <div class="flex justify-between">
+          <div>
+            <p class="text-xs text-gray-400 font-bold uppercase">Nombres y Apellidos</p>
+            <p class="text-gray-700 font-bold text-lg"><?php echo $user['name'] . ' ' . $user['lastName']; ?></p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-400 font-bold uppercase">Fecha de Ingreso</p>
+            <p class="text-gray-700 font-bold text-lg"><?php echo $user['date_entry'];?></p>
+          </div>
         </div>
         <div class="flex justify-between">
           <div>
