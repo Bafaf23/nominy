@@ -1,46 +1,21 @@
-<?php 
+<?php
+
 /**
  * Vista de para RRHH para visualizar y modificar la informacion del personal
  */
 $pageTitle = "Personal - Nominy";
 include "layout.php";
 
-if($_SESSION["name_role"] !== "RRHH"){
-  header("Locaion: acess_denied.php");
+include "../../app/models/Users.php";
+include "../../app/controllers/conexion.php";
+include  "../components/molecule/modal_create_user.php";
+
+if ($_SESSION["name_role"] !== "RRHH") {
+  header("Location: acess_denied.php");
   exit;
 }
-$personal = [
-  [
-    "id" => 1,
-    "dni" => "V-24165273",
-    "name" => "Bryant",
-    "lastName" => "Facenda",
-    "email" => "bryantffacen@gmail.com",
-    "role" => "Development",
-    "brith_date"=>"23-2-1900",
-    "status" => 1
-  ],
-  [
-    "id" => 2,
-    "dni" => "V-25000000",
-    "name" => "Carlos",
-    "lastName" => "Gómez",
-    "email" => "carlos@nominy.com",
-    "role" => "Admin",
-    "brith_date"=>"23-2-1900",
-    "status" => 1
-  ],
-  [
-    "id" => 3,
-    "dni" => "V-26000000",
-    "name" => "Ana",
-    "lastName" => "López",
-    "brith_date"=>"",
-    "email" => "ana@nominy.com",
-    "role" => "RRHH",
-    "status" => 0
-  ]
-]
+$userModel = new Users($conn);
+$personal = $userModel->getUsers() ?: [];
 ?>
 
 
@@ -50,7 +25,7 @@ $personal = [
       <h1 class="text-2xl font-bold text-gray-800">Consulta la información de todo el personal</h1>
       <p class="text-sm text-gray-500">Gestiona la información de los usuarios del sistema.</p>
     </div>
-    <button class="p-3 rounded-xl bg-orange-500 text-white font-bold cursor-pointer hover:bg-orange-600 transition-colors">
+    <button onclick="abrirModal()" class="p-3 rounded-xl bg-orange-500 text-white font-bold cursor-pointer hover:bg-orange-600 transition-colors">
       <i class="fa-solid fa-user-plus mr-2"></i>Crear Usuario
     </button>
   </div>
@@ -75,6 +50,7 @@ $personal = [
         <th class="p-4 text-xs font-bold text-gray-400 uppercase">Nombre Completo</th>
         <th class="p-4 text-xs font-bold text-gray-400 uppercase">Email</th>
         <th class="p-4 text-xs font-bold text-gray-400 uppercase">Cargo</th>
+        <th class="p-4 text-xs font-bold text-gray-400 uppercase">Salario</th>
         <th class="p-4 text-xs font-bold text-gray-400 uppercase">Fecha de Ingreso</th>
         <th class="p-4 text-xs font-bold text-gray-400 uppercase">Estado</th>
         <th class="p-4 text-xs font-bold text-gray-400 uppercase text-center">Acciones</th>
@@ -84,12 +60,13 @@ $personal = [
       <?php foreach ($personal as $usuario): ?>
         <tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
           <td class="p-4 text-gray-500 font-medium"><?php echo $usuario['dni']; ?></td>
-          <td class="p-4 text-gray-700 font-bold"><?php echo $usuario['name'] . ' ' . $usuario['lastName']; ?></td>
+          <td class="p-4 text-gray-700 font-bold"><?php echo $usuario['name'] . ' ' . $usuario['last_name']; ?></td>
           <td class="p-4 text-gray-600"><?php echo $usuario['email']; ?></td>
-          <td class="p-4 text-gray-600 font-medium"><?php echo $usuario['role']; ?></td>
-          <td class="p-4 text-gray-600 font-medium"><?php echo $usuario['brith_date']; ?></td>
+          <td class="p-4 text-gray-600 font-medium"><?php echo $usuario['name_role']; ?></td>
+          <td class="p-4 text-gray-600 font-medium"><?php echo '$' . $usuario['salary']; ?></td>
+          <td class="p-4 text-gray-600 font-medium"><?php echo $usuario['date_entry']; ?></td>
           <td class="p-4">
-            <?php if ($usuario['status'] === 1): ?>
+            <?php if ($usuario['is_active'] === 1): ?>
               <span class="bg-green-100 text-green-600 text-xs px-3 py-1 rounded-full font-bold">Activo</span>
             <?php else: ?>
               <span class="bg-yellow-100 text-yellow-600 text-xs px-3 py-1 rounded-full font-bold">Pendiente</span>
@@ -100,10 +77,28 @@ $personal = [
             <button class="w-8 h-8 flex items-center justify-center bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors cursor-pointer" title="Editar">
               <i class="fa-solid fa-pen-to-square"></i>
             </button>
-            <!-- Botón Borrar -->
-            <button class="w-8 h-8 flex items-center justify-center bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors cursor-pointer" title="Eliminar">
-              <i class="fa-solid fa-trash"></i>
-            </button>
+            <!-- Botón active  -->
+            <?php if ($usuario['is_active'] === 1): ?>
+              <form action="../../app/controllers/userControll.php" method="POST" class="inline">
+                <input type="hidden" name="action" value="toggle_status">
+                <input type="hidden" name="user_id" value="<?php echo $usuario['id']; ?>">
+                <input type="hidden" name="new_status" value="0">
+
+                <button type="submit" class="w-8 h-8 flex items-center justify-center bg-red-50 text-red-600 rounded-lg hover:bg-red-100 cursor-pointer" title="Desactivar">
+                  <i class="fas fa-user-slash"></i>
+                </button>
+              </form>
+            <?php else: ?>
+              <form action="../../app/controllers/userControll.php" method="POST" class="inline">
+                <input type="hidden" name="action" value="toggle_status">
+                <input type="hidden" name="user_id" value="<?php echo $usuario['id']; ?>">
+                <input type="hidden" name="new_status" value="1">
+
+                <button type="submit" class="w-8 h-8 flex items-center justify-center bg-green-50 text-green-600 rounded-lg hover:bg-green-100 cursor-pointer" title="Activar">
+                  <i class="fa-solid fa-user-check"></i>
+                </button>
+              </form>
+            <?php endif ?>
           </td>
         </tr>
       <?php endforeach; ?>
@@ -111,6 +106,19 @@ $personal = [
   </table>
 </section>
 
-<?php 
+<script>
+  function abrirModal() {
+    const modal = document.getElementById('modalCrearUsuario');
+    modal.classList.remove('hidden');
+    modal.classList.add("inline-flex")
+  }
+
+  function cerrarModal() {
+    const modal = document.getElementById('modalCrearUsuario');
+    modal.classList.add('hidden');
+    modal.classList.remove("inline-flex")
+  }
+</script>
+<?php
 include __DIR__ . '/footer.php';
 ?>

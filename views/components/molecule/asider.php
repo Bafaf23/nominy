@@ -36,12 +36,12 @@ $links = [
       <nav class="mt-6 space-y-2">
         <?php
         $router = basename($_SERVER['SCRIPT_NAME']);
-        $rol_actual = isset($_SESSION["role_name"]) ? $_SESSION["role_name"] : "";
+        $rol_actual = isset($_SESSION["name_role"]) ? $_SESSION["name_role"] : "";
 
         foreach($links as $link){
           $isActive = ($router === $link["href"]);
 
-          if ($link["label"] === "personal.php" && $rol_actual !== "RRHH") {
+          if ($link["label"] === "Personal" && $rol_actual !== "RRHH") {
             continue;
           }
 
