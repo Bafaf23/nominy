@@ -60,45 +60,43 @@ $personal = $userModel->getUsers() ?: [];
       <?php foreach ($personal as $usuario): ?>
         <tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
           <td class="p-4 text-gray-500 font-medium"><?php echo $usuario['dni']; ?></td>
+
           <td class="p-4 text-gray-700 font-bold"><?php echo $usuario['name'] . ' ' . $usuario['last_name']; ?></td>
           <td class="p-4 text-gray-600"><?php echo $usuario['email']; ?></td>
+
           <td class="p-4 text-gray-600 font-medium"><?php echo $usuario['name_role']; ?></td>
-          <td class="p-4 text-gray-600 font-medium"><?php echo '$' . $usuario['salary']; ?></td>
+
+          <td class="p-4 text-gray-600 font-medium"><?php echo '$' . number_format($usuario['salary'], 2); ?></td>
           <td class="p-4 text-gray-600 font-medium"><?php echo $usuario['date_entry']; ?></td>
+
           <td class="p-4">
-            <?php if ($usuario['is_active'] === 1): ?>
+            <?php if ($usuario['is_active'] == 1): ?>
               <span class="bg-green-100 text-green-600 text-xs px-3 py-1 rounded-full font-bold">Activo</span>
             <?php else: ?>
               <span class="bg-yellow-100 text-yellow-600 text-xs px-3 py-1 rounded-full font-bold">Pendiente</span>
             <?php endif; ?>
           </td>
+
           <td class="p-4 flex gap-2 justify-center">
-            <!-- Botón Editar -->
             <button class="w-8 h-8 flex items-center justify-center bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors cursor-pointer" title="Editar">
               <i class="fa-solid fa-pen-to-square"></i>
             </button>
-            <!-- Botón active  -->
-            <?php if ($usuario['is_active'] === 1): ?>
-              <form action="../../app/controllers/userControll.php" method="POST" class="inline">
-                <input type="hidden" name="action" value="toggle_status">
-                <input type="hidden" name="user_id" value="<?php echo $usuario['id']; ?>">
-                <input type="hidden" name="new_status" value="0">
 
+            <form action="../../app/controllers/userControll.php" method="POST" class="inline">
+              <input type="hidden" name="action" value="toggle_status">
+              <input type="hidden" name="user_id" value="<?php echo $usuario['id_usuario']; ?>">
+              <input type="hidden" name="new_status" value="<?php echo ($usuario['is_active'] == 1) ? '0' : '1'; ?>">
+
+              <?php if ($usuario['is_active'] == 1): ?>
                 <button type="submit" class="w-8 h-8 flex items-center justify-center bg-red-50 text-red-600 rounded-lg hover:bg-red-100 cursor-pointer" title="Desactivar">
                   <i class="fas fa-user-slash"></i>
                 </button>
-              </form>
-            <?php else: ?>
-              <form action="../../app/controllers/userControll.php" method="POST" class="inline">
-                <input type="hidden" name="action" value="toggle_status">
-                <input type="hidden" name="user_id" value="<?php echo $usuario['id']; ?>">
-                <input type="hidden" name="new_status" value="1">
-
+              <?php else: ?>
                 <button type="submit" class="w-8 h-8 flex items-center justify-center bg-green-50 text-green-600 rounded-lg hover:bg-green-100 cursor-pointer" title="Activar">
                   <i class="fa-solid fa-user-check"></i>
                 </button>
-              </form>
-            <?php endif ?>
+              <?php endif ?>
+            </form>
           </td>
         </tr>
       <?php endforeach; ?>

@@ -10,7 +10,7 @@ USE roster_db;
 CREATE TABLE IF NOT EXISTS roles(
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   name_role VARCHAR(255) NOT NULL UNIQUE,
-  salary DECIMAL(10.2)
+  salary DECIMAL(10,2)
 )
 
 -- Tabla bonos
@@ -60,3 +60,6 @@ CREATE TABLE IF NOT EXISTS users(
 INSERT INTO users (dni, name, last_name, email, pass, date_entry, id_role) VALUE("V-00001", "Angelica", "Rivas", "superadmin@mominy.com", "admin123", "1-01-1999", 2);
 
 INSERT INTO roles (name_role, salary) VALUE ("Development", 1000), ("RRHH", 500), ("Marketing", 670), ("QA", 1000), ("Design", 700), ("Accounting and Sales", 800)
+
+DROP Table roles
+

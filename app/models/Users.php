@@ -49,10 +49,10 @@ class Users
    */
   public function login($userName, $pass)
   {
-    $sql = "SELECT u.*, r.name_role, r.salary
-    FROM users u 
-    LEFT JOIN roles r ON u.id_role = r.id 
-    WHERE u.email = ? AND u.is_active = 1";
+    $sql = "SELECT *, name_role, salary
+    FROM users  
+    LEFT JOIN roles ON users.id_role = roles.id 
+    WHERE users.email = ? AND users.is_active = 1";
 
     $stmt = $this->db->prepare($sql);
     $stmt->bind_param("s", $userName);
@@ -74,12 +74,30 @@ class Users
 
   public function getUsers()
   {
-    $sql = "SELECT * FROM users LEFT JOIN roles ON users.id_role = roles.id";
+    // 1. Usamos AS id_usuario para que no se mezcle con el id del rol
+    // 2. Traemos salary de la tabla roles (que es donde lo definiste)
+    $sql = "SELECT 
+                users.id AS id_usuario, 
+                users.dni, 
+                users.name, 
+                users.last_name, 
+                users.email, 
+                users.date_entry, 
+                users.is_active,
+                roles.name_role,
+                roles.salary
+            FROM users 
+            LEFT JOIN roles ON users.id_role = roles.id";
+
     $stmt = $this->db->prepare($sql);
+
+    if (!$stmt) {
+      // Esto te dirá el error real si tu base de datos tiene otro detalle
+      die("Error en SQL: " . $this->db->error);
+    }
+
     $stmt->execute();
-
     $result = $stmt->get_result();
-
     $users = [];
 
     while ($row = $result->fetch_assoc()) {
@@ -94,18 +112,15 @@ class Users
   public function updateStatus($id, $status)
   {
     $status = ($status == 1) ? 1 : 0;
-
     $sql = "UPDATE users SET is_active = ? WHERE id = ?";
     $stmt = $this->db->prepare($sql);
 
-    if (!$stmt) {
-      return false;
-    }
+    if (!$stmt) return false;
 
     $stmt->bind_param("ii", $status, $id);
     $result = $stmt->execute();
     $stmt->close();
 
-    return $result; // Devuelve true si la consulta fue exitosa
+    return $result;
   }
 }
