@@ -99,6 +99,36 @@ class UserCotroll
     header("Location: ../../views/dashboard/personal.php?error=fallo_actualizacion");
     exit;
   }
+
+  public function updateUser()
+  {
+    global $conn;
+
+    $idUser = $_POST['user_id'];
+    $name = $_POST['edit_name'];
+    $lastName = $_POST['edit_last_name'];
+    $date = $_POST['edit_date'];
+    $email = $_POST['edit_email'];
+    $role = $_POST['edit_role'];
+
+    /*  if (!$name || !$lastName || !$email || !$role || $date) {
+      header("Location: ../../views/dashboard/personal.php?success=campo_vacios");
+      exit;
+    } */
+
+    if ($idUser !== null) {
+      $userModel = new Users($conn);
+      $result = $userModel->updateUser($idUser, $name, $date, $lastName, $role, $email);
+
+      if ($result) {
+        header("Location: ../../views/dashboard/personal.php?success=actualizacion_exitosa");
+        exit;
+      }
+    }
+
+    header("Location: ../../views/dashboard/personal.php?success=erro_al_procesar_la_actualizacion");
+    exit;
+  }
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -107,6 +137,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $controller->handleLogin();
   } elseif (isset($_POST['action']) && $_POST['action'] === 'toggle_status') {
     $controller->handleToggleStatus();
+  } elseif (isset($_POST['action']) && $_POST['action'] === "update_user") {
+    $controller->updateUser();
   } else {
     $controller->handleRegister();
   }

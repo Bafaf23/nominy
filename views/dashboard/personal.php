@@ -8,7 +8,8 @@ include "layout.php";
 
 include "../../app/models/Users.php";
 include "../../app/controllers/conexion.php";
-include  "../components/molecule/modal_create_user.php";
+include "../components/molecule/modal_create_user.php";
+include "../components/molecule/modal_edit_user.php";
 
 if ($_SESSION["name_role"] !== "RRHH") {
   header("Location: acess_denied.php");
@@ -52,6 +53,7 @@ $personal = $userModel->getUsers() ?: [];
         <th class="p-4 text-xs font-bold text-gray-400 uppercase">Cargo</th>
         <th class="p-4 text-xs font-bold text-gray-400 uppercase">Salario</th>
         <th class="p-4 text-xs font-bold text-gray-400 uppercase">Fecha de Ingreso</th>
+        <th class="p-4 text-xs font-bold text-gray-400 uppercase">Banco</th>
         <th class="p-4 text-xs font-bold text-gray-400 uppercase">Estado</th>
         <th class="p-4 text-xs font-bold text-gray-400 uppercase text-center">Acciones</th>
       </tr>
@@ -68,6 +70,7 @@ $personal = $userModel->getUsers() ?: [];
 
           <td class="p-4 text-gray-600 font-medium"><?php echo '$' . number_format($usuario['salary'], 2); ?></td>
           <td class="p-4 text-gray-600 font-medium"><?php echo $usuario['date_entry']; ?></td>
+          <td class="p-4 text-gray-600 font-medium"><?php echo $usuario['name_bank']; ?></td>
 
           <td class="p-4">
             <?php if ($usuario['is_active'] == 1): ?>
@@ -78,7 +81,7 @@ $personal = $userModel->getUsers() ?: [];
           </td>
 
           <td class="p-4 flex gap-2 justify-center">
-            <button class="w-8 h-8 flex items-center justify-center bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors cursor-pointer" title="Editar">
+            <button onclick="abrirModalEditar(<?php echo htmlspecialchars(json_encode($usuario)); ?>)" class="w-8 h-8 flex items-center justify-center bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors cursor-pointer" title="Editar">
               <i class="fa-solid fa-pen-to-square"></i>
             </button>
 
@@ -115,6 +118,28 @@ $personal = $userModel->getUsers() ?: [];
     const modal = document.getElementById('modalCrearUsuario');
     modal.classList.add('hidden');
     modal.classList.remove("inline-flex")
+  }
+
+  function abrirModalEditar(usuario) {
+    const modal = document.getElementById('modalEditarUsuario');
+
+    // Rellenamos los campos con los datos que vienen de la fila
+    document.getElementById('edit_id').value = usuario.id_usuario; // El alias que creamos
+    document.getElementById('edit_name').value = usuario.name;
+    document.getElementById('edit_last_name').value = usuario.last_name;
+    document.getElementById('edit_dni').value = usuario.dni;
+    document.getElementById('edit_email').value = usuario.email
+    document.getElementById('edit_role').value = usuario.name_role
+    document.getElementById('edit_date').value = usuario.date_entry
+    // Mostramos el modal
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+  }
+
+  function cerrarModalEditar() {
+    const modal = document.getElementById('modalEditarUsuario');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
   }
 </script>
 <?php

@@ -85,9 +85,12 @@ class Users
                 users.date_entry, 
                 users.is_active,
                 roles.name_role,
-                roles.salary
+                roles.salary,
+                bank.name_bank,
+                bank.account
             FROM users 
-            LEFT JOIN roles ON users.id_role = roles.id";
+            LEFT JOIN roles ON users.id_role = roles.id
+            LEFT JOIN bank ON users.id_bank = bank.id";
 
     $stmt = $this->db->prepare($sql);
 
@@ -118,6 +121,27 @@ class Users
     if (!$stmt) return false;
 
     $stmt->bind_param("ii", $status, $id);
+    $result = $stmt->execute();
+    $stmt->close();
+
+    return $result;
+  }
+
+  public function updateUser($id, $name, $date, $lastName, $role, $email)
+  {
+    $sql = "UPDATE users SET 
+              name = ?, 
+              last_name = ?,
+              date_entry = ?,
+              email = ?, 
+              id_role = ?
+            WHERE id = ?";
+
+    $stmt = $this->db->prepare($sql);
+    if (!$stmt) return false;
+
+    $stmt->bind_param("ssssii", $name, $lastName, $date, $email, $role, $id);
+
     $result = $stmt->execute();
     $stmt->close();
 

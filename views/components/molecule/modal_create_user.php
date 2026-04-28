@@ -1,4 +1,4 @@
-<div id="modalCrearUsuario" class="fixed inset-0 z-[9999] hidden bg-black/60 backdrop-blur-sm items-center justify-center">
+<div id="modalCrearUsuario" class="hidden fixed inset-0 bg-gray-900/50 items-center justify-center z-50">
 
   <div class="bg-white w-full max-w-lg mx-4 rounded-xl shadow-2xl transform transition-all">
 

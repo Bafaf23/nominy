@@ -59,7 +59,9 @@ CREATE TABLE IF NOT EXISTS users(
 --Este es el usurio poderoso, usasalo con sabiduria
 INSERT INTO users (dni, name, last_name, email, pass, date_entry, id_role) VALUE("V-00001", "Angelica", "Rivas", "superadmin@mominy.com", "admin123", "1-01-1999", 2);
 
-INSERT INTO roles (name_role, salary) VALUE ("Development", 1000), ("RRHH", 500), ("Marketing", 670), ("QA", 1000), ("Design", 700), ("Accounting and Sales", 800)
+INSERT INTO roles (name_role, salary) VALUE ("Development", 1000), ("RRHH", 500), ("Marketing", 670), ("QA", 1000), ("Design", 700), ("Accounting and Sales", 800);
+
+INSERT INTO bank (name_bank, account) VALUE ("BBVA", "1234567891211"), ("Banesco", "15536667891511"), ("Mercantil", "14345643876511")
 
 DROP Table roles
 
