@@ -53,7 +53,7 @@ $links = [
         if ($link["label"] === "Pago de Nomina" && $rol_actual !== "RRHH") {
           continue;
         }
-        
+
         $class = $isActive ? 'bg-orange-50 text-orange-600 font-bold' : 'text-gray-600 hover:bg-gray-50 font-semibold';
 
         echo '

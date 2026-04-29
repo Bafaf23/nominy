@@ -30,9 +30,11 @@ include "layout.php";
 
 ?>
 <header>
-  <div>
-    <h1 class="text-2xl font-bold text-gray-800">Mis Pagos Recientes</h1>
-    <p class="text-sm text-gray-500">Consulta y descarga tus comprobantes de nómina.</p>
+  <div class="flex justify-between">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-800">Mis Pagos Recientes</h1>
+      <p class="text-sm text-gray-500">Consulta y descarga tus comprobantes de nómina.</p>
+    </div>
   </div>
 </header>
 

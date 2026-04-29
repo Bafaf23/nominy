@@ -2,7 +2,13 @@
 $pageTitle = "Pago de nomina - Nominy";
 include "layout.php";
 
+include "../../app/models/Users.php";
+include "../../app/controllers/conexion.php";
 
+include "../components/molecule/modal_payroll.php";
+
+$userModel = new Users($conn);
+$works = $userModel->getUsers() ?: [];
 
 /* $data = [
   [
@@ -30,9 +36,14 @@ include "layout.php";
 
 ?>
 <header>
-  <div>
-    <h1 class="text-2xl font-bold text-gray-800">Mis Pagos Recientes</h1>
-    <p class="text-sm text-gray-500">Consulta y descarga tus comprobantes de nómina.</p>
+  <div class="flex justify-between">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-800">Historial de pago de nomina</h1>
+      <p class="text-sm text-gray-500">Historial de todo los pagos de nomina de empresa.</p>
+    </div>
+    <div>
+      <button onclick="openPayroll(<?php echo htmlspecialchars(json_encode($works)); ?>)" id="openPayroll" class="p-4 bg-slate-900 rounded-2xl text-white font-bold text-md">Pagar nomina</button>
+    </div>
   </div>
 </header>
 
@@ -44,7 +55,7 @@ include "layout.php";
       </div>
       <h3 class="text-lg font-bold text-gray-700">Sin historial de pagos</h3>
       <p class="text-gray-500 text-sm text-center max-w-xs mt-1">
-        Aún no se han procesado pagos de nómina para tu cuenta en este periodo.
+        Aún no se han procesado pagos de nómina de la empresa en este periodo.
       </p>
 
       <button onclick="location.reload()" class="mt-6 px-5 py-2 bg-white border border-gray-200 text-gray-600 rounded-xl text-sm font-bold hover:bg-gray-100 transition-all">
@@ -89,5 +100,31 @@ include "layout.php";
 
     <?php endforeach; ?>
   <?php endif; ?>
-
 </section>
+
+<script>
+  function openPayroll(data) {
+    const modal = document.getElementById("modalPay");
+    const btn = document.getElementById("openPayroll");
+
+    const totalWorks = Object.keys(data).length;
+
+    let salaryTotal = 0
+    data.forEach(worker => {
+      salaryTotal += parseFloat(worker.salary)
+    })
+
+    document.getElementById("totalPersonal").value = totalWorks;
+    document.getElementById("totalSalaryDisplay").value = salaryTotal;
+
+    modal.classList.remove("hidden")
+    modal.classList.add("inline-flex")
+  }
+
+  function closePayroll() {
+    const modal = document.getElementById("modalPay");
+
+    modal.classList.remove(`inline-flex`);
+    modal.classList.add(`hidden`)
+  }
+</script>
