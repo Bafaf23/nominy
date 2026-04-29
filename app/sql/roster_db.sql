@@ -38,6 +38,15 @@ CREATE TABLE deductions (
 );
 
 
+CREATE TABLE IF NOT EXISTS user_bonuses (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    id_user INT UNSIGNED NOT NULL,
+    id_bonus INT UNSIGNED NOT NULL,
+    assigned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_user) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (id_bonus) REFERENCES bonuses(id) ON DELETE CASCADE
+);
+
 -- Tabla user
 CREATE TABLE IF NOT EXISTS users(
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -73,7 +82,6 @@ CREATE TABLE IF NOT EXISTS payroll_history (
     status ENUM('paid', 'pending', 'failed') DEFAULT 'paid',
     FOREIGN KEY (id_user) REFERENCES users(id) ON DELETE CASCADE
 );
-
 
 
 ---------------------------------------------------------

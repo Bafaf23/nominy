@@ -74,23 +74,29 @@ class Users
 
   public function getUsers()
   {
-    // 1. Usamos AS id_usuario para que no se mezcle con el id del rol
-    // 2. Traemos salary de la tabla roles (que es donde lo definiste)
     $sql = "SELECT 
-                users.id AS id_usuario, 
-                users.dni, 
-                users.name, 
-                users.last_name, 
-                users.email, 
-                users.date_entry, 
-                users.is_active,
-                roles.name_role,
-                roles.salary,
-                bank.name_bank,
-                bank.account
-            FROM users 
-            LEFT JOIN roles ON users.id_role = roles.id
-            LEFT JOIN bank ON users.id_bank = bank.id";
+    u.id AS id_usuario, 
+    u.dni, 
+    u.name, 
+    u.last_name, 
+    u.email, 
+    u.date_entry, 
+    u.is_active,
+    r.name_role,
+    r.salary,
+    b.name_bank,
+    b.account,
+    -- Agrupamos los nombres de los bonos en un solo string separado por comas
+    GROUP_CONCAT(bn.name_bonuses SEPARATOR ', ') AS nombres_bonos,
+    -- Sumamos el total de bonos para tener el ingreso extra
+    IFNULL(SUM(bn.amount), 0) AS total_bonos
+FROM users u
+LEFT JOIN roles r ON u.id_role = r.id
+LEFT JOIN bank b ON u.id_bank = b.id
+-- Relación con la tabla intermedia y la tabla de bonos
+LEFT JOIN user_bonuses ub ON u.id = ub.id_user
+LEFT JOIN bonuses bn ON ub.id_bonus = bn.id
+GROUP BY u.id";
 
     $stmt = $this->db->prepare($sql);
 
@@ -127,21 +133,49 @@ class Users
     return $result;
   }
 
-  public function updateUser($id, $name, $date, $lastName, $role, $email)
+  public function updateUser($id, $name, $date, $lastName, $role, $email, $nameBank, $account)
   {
-    $sql = "UPDATE users SET 
-              name = ?, 
-              last_name = ?,
-              date_entry = ?,
-              email = ?, 
-              id_role = ?
-            WHERE id = ?";
 
-    $stmt = $this->db->prepare($sql);
-    if (!$stmt) return false;
+    $checkSql = "SELECT id_bank FROM users WHERE id = ?";
+    $checkStmt = $this->db->prepare($checkSql);
+    $checkStmt->bind_param("i", $id);
+    $checkStmt->execute();
+    $res = $checkStmt->get_result()->fetch_assoc();
+    $idBankActual = $res['id_bank'] ?? null;
+    $checkStmt->close();
 
+    if ($idBankActual === null) {
+
+      $insBank = "INSERT INTO bank (name_bank, account) VALUES (?, ?)";
+      $stmtB = $this->db->prepare($insBank);
+      $stmtB->bind_param("ss", $nameBank, $account);
+      $stmtB->execute();
+      $idBankActual = $this->db->insert_id;
+      $stmtB->close();
+
+
+      $upUserBank = "UPDATE users SET id_bank = ? WHERE id = ?";
+      $stmtU = $this->db->prepare($upUserBank);
+      $stmtU->bind_param("ii", $idBankActual, $id);
+      $stmtU->execute();
+      $stmtU->close();
+    } else {
+      $upBank = "UPDATE bank SET name_bank = ?, account = ? WHERE id = ?";
+      $stmtB = $this->db->prepare($upBank);
+      $stmtB->bind_param("ssi", $nameBank, $account, $idBankActual);
+      $stmtB->execute();
+      $stmtB->close();
+    }
+    $sqlUser = "UPDATE users SET 
+    name = ?, 
+    last_name = ?,
+    date_entry = ?,
+    email = ?, 
+    id_role = ?
+    WHERE id = ?";
+
+    $stmt = $this->db->prepare($sqlUser);
     $stmt->bind_param("ssssii", $name, $lastName, $date, $email, $role, $id);
-
     $result = $stmt->execute();
     $stmt->close();
 

@@ -110,6 +110,9 @@ class UserCotroll
     $date = $_POST['edit_date'];
     $email = $_POST['edit_email'];
     $role = $_POST['edit_role'];
+    $account = $_POST['edit_bank_account'];
+    $namneBank = $_POST['edit_bank_name'];
+
 
     /*  if (!$name || !$lastName || !$email || !$role || $date) {
       header("Location: ../../views/dashboard/personal.php?success=campo_vacios");
@@ -118,7 +121,7 @@ class UserCotroll
 
     if ($idUser !== null) {
       $userModel = new Users($conn);
-      $result = $userModel->updateUser($idUser, $name, $date, $lastName, $role, $email);
+      $result = $userModel->updateUser($idUser, $name, $date, $lastName, $role, $email, $namneBank, $account);
 
       if ($result) {
         header("Location: ../../views/dashboard/personal.php?success=actualizacion_exitosa");

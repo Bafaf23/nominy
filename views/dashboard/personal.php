@@ -53,6 +53,7 @@ $personal = $userModel->getUsers() ?: [];
         <th class="p-4 text-xs font-bold text-gray-400 uppercase">Cargo</th>
         <th class="p-4 text-xs font-bold text-gray-400 uppercase">Salario</th>
         <th class="p-4 text-xs font-bold text-gray-400 uppercase">Fecha de Ingreso</th>
+        <th class="p-4 text-xs font-bold text-gray-400 uppercase">Bonos</th>
         <th class="p-4 text-xs font-bold text-gray-400 uppercase">Estado</th>
         <th class="p-4 text-xs font-bold text-gray-400 uppercase text-center">Acciones</th>
       </tr>
@@ -69,7 +70,15 @@ $personal = $userModel->getUsers() ?: [];
 
           <td class="p-4 text-gray-600 font-medium"><?php echo '$' . number_format($usuario['salary'], 2); ?></td>
           <td class="p-4 text-gray-600 font-medium"><?php echo $usuario['date_entry']; ?></td>
-
+          <td>
+            <?php if ($usuario['nombres_bonos']): ?>
+              <span class="bg-orange-100 text-orange-600 px-2 py-1 rounded-lg text-xs font-bold">
+                <?= $usuario['nombres_bonos'] ?>
+              </span>
+            <?php else: ?>
+              <span class="text-gray-400 text-xs italic">Sin bonos</span>
+            <?php endif; ?>
+          </td>
           <td class="p-4">
             <?php if ($usuario['is_active'] == 1): ?>
               <span class="bg-green-100 text-green-600 text-xs px-3 py-1 rounded-full font-bold">Activo</span>
@@ -129,6 +138,8 @@ $personal = $userModel->getUsers() ?: [];
     document.getElementById('edit_email').value = usuario.email
     document.getElementById('edit_role').value = usuario.name_role
     document.getElementById('edit_date').value = usuario.date_entry
+    document.getElementById('edit_bank_account').value = usuario.account
+    document.getElementById('edit_bank_name').value = usuario.name_bank
     // Mostramos el modal
     modal.classList.remove('hidden');
     modal.classList.add('flex');

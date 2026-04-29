@@ -1,6 +1,6 @@
 <?php
 $pageTitle = "Detalles de la nomina - Nominy";
-include "layout.php";
+include "../layout.php";
 
 $user = [
   "dni" => isset($_SESSION['dni']) ? $_SESSION['dni'] : "No asignada",
@@ -178,5 +178,5 @@ $total_dedu = 0;
 </section>
 
 <?php
-include "footer.php";
+include "../footer.php";
 ?>
