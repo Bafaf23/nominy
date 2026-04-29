@@ -53,7 +53,6 @@ $personal = $userModel->getUsers() ?: [];
         <th class="p-4 text-xs font-bold text-gray-400 uppercase">Cargo</th>
         <th class="p-4 text-xs font-bold text-gray-400 uppercase">Salario</th>
         <th class="p-4 text-xs font-bold text-gray-400 uppercase">Fecha de Ingreso</th>
-        <th class="p-4 text-xs font-bold text-gray-400 uppercase">Banco</th>
         <th class="p-4 text-xs font-bold text-gray-400 uppercase">Estado</th>
         <th class="p-4 text-xs font-bold text-gray-400 uppercase text-center">Acciones</th>
       </tr>
@@ -70,7 +69,6 @@ $personal = $userModel->getUsers() ?: [];
 
           <td class="p-4 text-gray-600 font-medium"><?php echo '$' . number_format($usuario['salary'], 2); ?></td>
           <td class="p-4 text-gray-600 font-medium"><?php echo $usuario['date_entry']; ?></td>
-          <td class="p-4 text-gray-600 font-medium"><?php echo $usuario['name_bank']; ?></td>
 
           <td class="p-4">
             <?php if ($usuario['is_active'] == 1): ?>

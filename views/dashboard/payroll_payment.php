@@ -1,5 +1,5 @@
 <?php
-$pageTitle = "Mi nomina - Nominy";
+$pageTitle = "Pago de nomina - Nominy";
 include "layout.php";
 
 
