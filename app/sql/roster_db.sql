@@ -122,7 +122,6 @@ INSERT INTO bonuses (name_bonuses, amount) VALUES
 ('Bono de Productividad', 50.00),
 ('Bono de Antigüedad', 30.00);
 
--- Usuario Admin para el profesor
--- Nota: La clave aquí es texto plano, recuerda usar password_hash en tu PHP
+-- Usuario Admin
 INSERT INTO users (dni, name, last_name, email, pass, date_entry, id_role, id_bank, is_active) 
 VALUES ("V-00001", "Angelica", "Rivas", "superadmin@nominy.com", "admin123", "2026-01-01", 2, 1, 1);

@@ -1,32 +1,22 @@
 <?php
 $pageTitle = "Mi nomina - Nominy";
 include "layout.php";
+include "../../app/controllers/conexion.php";
 
 
+$id_usuario = $_SESSION['user_id'];
+$sql = "SELECT id, amount as monto_pagado, period as periode, bank, 
+                DATE_FORMAT(payment_date, '%d-%m-%Y') as date, 
+                'PAGADO' as status 
+        FROM individual_payments 
+        WHERE id_user = ? 
+        ORDER BY payment_date DESC";
 
-/* $data = [
-  [
-    "status" => "PAGADO",
-    "periode" => "sasas",
-    "monto_pagado" => "12222",
-    "bank" => "BBVA",
-    "date" => "23-2-2303"
-  ],
-  [
-    "status" => "PAGADO",
-    "periode" => "sasas",
-    "monto_pagado" => "12222",
-    "bank" => "BBVA",
-    "date" => "23-2-2303"
-  ],
-  [
-    "status" => "PAGADO",
-    "periode" => "sasas",
-    "monto_pagado" => "12222",
-    "bank" => "BBVA",
-    "date" => "23-2-2303"
-  ]
-] */
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $id_usuario);
+$stmt->execute();
+$result = $stmt->get_result();
+$data = $result->fetch_all(MYSQLI_ASSOC);
 
 ?>
 <header>
@@ -40,22 +30,11 @@ include "layout.php";
 
 <section class="mt-5">
   <?php if (empty($data)): ?>
-    <div class="flex flex-col items-center justify-center p-12 border-2 border-dashed border-gray-200 rounded-[3rem] bg-gray-50/50 my-10">
-      <div class="bg-white p-4 rounded-2xl shadow-sm mb-4">
-        <i class="fa-solid fa-receipt text-4xl text-gray-300"></i>
-      </div>
-      <h3 class="text-lg font-bold text-gray-700">Sin historial de pagos</h3>
-      <p class="text-gray-500 text-sm text-center max-w-xs mt-1">
-        Aún no se han procesado pagos de nómina para tu cuenta en este periodo.
-      </p>
 
-      <button onclick="location.reload()" class="mt-6 px-5 py-2 bg-white border border-gray-200 text-gray-600 rounded-xl text-sm font-bold hover:bg-gray-100 transition-all">
-        <i class="fa-solid fa-rotate-right mr-2"></i> Actualizar
-      </button>
-    </div>
   <?php else : ?>
-    <?php foreach ($data as $item): ?>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 ">
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <?php foreach ($data as $item): ?>
         <div class="bg-white border border-gray-200 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
 
           <div class="flex justify-between items-start mb-4">
@@ -80,16 +59,10 @@ include "layout.php";
               <p>Fecha: <?php echo $item['date'] ?></p>
             </div>
 
-            <a href="detalle_nomina.php?id=<?php echo $item['id'] ?? '123'; ?>"
-              class="bg-orange-50 text-orange-500 p-2.5 rounded-xl hover:bg-orange-500 hover:text-white transition-all group">
-              Ver recibo <i class="fa-solid fa-chevron-right text-xs"></i>
-            </a>
           </div>
 
         </div>
-      </div>
-
-    <?php endforeach; ?>
+      <?php endforeach; ?>
+    </div>
   <?php endif; ?>
-
 </section>
