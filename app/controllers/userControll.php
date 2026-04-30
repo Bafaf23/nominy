@@ -68,6 +68,7 @@ class UserCotroll
       $_SESSION['name_role']     = $user['name_role'];
       $_SESSION['date_entry'] = $user['date_entry'];
       $_SESSION['salary'] = $user['salary'];
+      $_SESSION['bonuses'] = $user['bonuses'];
       $_SESSION['id_bonuses'] = $user['id_bonuses'];
 
 

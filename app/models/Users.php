@@ -49,25 +49,48 @@ class Users
    */
   public function login($userName, $pass)
   {
-    $sql = "SELECT *, name_role, salary
-    FROM users  
-    LEFT JOIN roles ON users.id_role = roles.id 
-    WHERE users.email = ? AND users.is_active = 1";
+    $sql = "SELECT u.*, r.name_role, r.salary
+              FROM users u
+              LEFT JOIN roles r ON u.id_role = r.id 
+              WHERE u.email = ? AND u.is_active = 1";
 
     $stmt = $this->db->prepare($sql);
     $stmt->bind_param("s", $userName);
     $stmt->execute();
-
     $result = $stmt->get_result();
 
     if ($result->num_rows === 1) {
       $row = $result->fetch_assoc();
+
+
       if (password_verify($pass, $row['pass'])) {
         $stmt->close();
+
+        $id_user = $row['id'];
+        $bonuses = [];
+
+        $sqlBones = "SELECT b.name_bonuses AS nameBone, b.amount AS monte 
+                            FROM user_bonuses ub
+                            JOIN bonuses b ON ub.id_bonus = b.id
+                            WHERE ub.id_user = ?";
+
+        $stmtB = $this->db->prepare($sqlBones);
+        $stmtB->bind_param("i", $id_user);
+        $stmtB->execute();
+        $resBones = $stmtB->get_result();
+
+        while ($bone = $resBones->fetch_assoc()) {
+          $bonuses[] = $bone;
+        }
+        $stmtB->close();
+
+        $row['bonuses'] = $bonuses;
+
         return $row;
       }
     }
-    $stmt->close();
+
+    if (isset($stmt)) $stmt->close();
     return false;
   }
 
@@ -86,22 +109,20 @@ class Users
     r.salary,
     b.name_bank,
     b.account,
-    -- Agrupamos los nombres de los bonos en un solo string separado por comas
-    GROUP_CONCAT(bn.name_bonuses SEPARATOR ', ') AS nombres_bonos,
-    -- Sumamos el total de bonos para tener el ingreso extra
+
+    GROUP_CONCAT(bn.name_bonuses SEPARATOR ', ') AS bonues,
+
     IFNULL(SUM(bn.amount), 0) AS total_bonos
-FROM users u
-LEFT JOIN roles r ON u.id_role = r.id
-LEFT JOIN bank b ON u.id_bank = b.id
--- Relación con la tabla intermedia y la tabla de bonos
-LEFT JOIN user_bonuses ub ON u.id = ub.id_user
-LEFT JOIN bonuses bn ON ub.id_bonus = bn.id
-GROUP BY u.id";
+    FROM users u
+    LEFT JOIN roles r ON u.id_role = r.id
+    LEFT JOIN bank b ON u.id_bank = b.id
+    LEFT JOIN user_bonuses ub ON u.id = ub.id_user
+    LEFT JOIN bonuses bn ON ub.id_bonus = bn.id
+    GROUP BY u.id";
 
     $stmt = $this->db->prepare($sql);
 
     if (!$stmt) {
-      // Esto te dirá el error real si tu base de datos tiene otro detalle
       die("Error en SQL: " . $this->db->error);
     }
 
@@ -180,5 +201,16 @@ GROUP BY u.id";
     $stmt->close();
 
     return $result;
+  }
+
+  public function getAvailableBonuses()
+  {
+    $sql = "SELECT * FROM bonuses ORDER BY name_bonuses ASC";
+    $result = $this->db->query($sql);
+    $data = [];
+    while ($row = $result->fetch_assoc()) {
+      $data[] = $row;
+    }
+    return $data;
   }
 }

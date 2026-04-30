@@ -1,4 +1,4 @@
-<div id="modalEditarUsuario" class="hidden fixed inset-0 bg-gray-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+<div id="modalEditarUsuario" class="hidden fixed inset-0 bg-gray-900/50 backdrop-blur-sm items-center justify-center z-50 p-4">
   <div class="bg-white rounded-[2rem] shadow-2xl w-full max-w-lg p-8 overflow-y-auto max-h-[90vh]">
 
     <header class="mb-6">

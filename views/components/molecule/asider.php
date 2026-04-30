@@ -19,7 +19,7 @@ $links = [
     "icon" => '<i class="fa-solid fa-money-bill-transfer"></i>',
     "label" => "Pago de Nomina",
     "href" => "payroll_payment.php"
-  ]
+  ],
 ]
 ?>
 <aside class="w-72 bg-white rounded-2xl shadow-xl p-6 flex flex-col justify-between">
@@ -51,6 +51,10 @@ $links = [
         }
 
         if ($link["label"] === "Pago de Nomina" && $rol_actual !== "RRHH") {
+          continue;
+        }
+
+        if ($link["label"] === "Bonos" && $rol_actual !== "RRHH") {
           continue;
         }
 

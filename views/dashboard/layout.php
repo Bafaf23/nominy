@@ -10,9 +10,7 @@ if (!isset($_SESSION['user_id'])) {
 
 $nombre_seguro = $_SESSION['name'];
 $inicial = substr($nombre_seguro, 0, 1);
-
 ?>
-
 <!DOCTYPE html>
 <html lang="es">
 
