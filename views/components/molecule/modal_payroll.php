@@ -1,52 +1,63 @@
-<div id="modalPay" class="fixed inset-0 bg-gray-900/50 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+<div id="modalPagoIndividual" class="hidden fixed inset-0 bg-gray-900/60 backdrop-blur-sm items-center justify-center z-50 p-4">
+  <div class="bg-white w-full max-w-md rounded-[2.5rem] shadow-2xl overflow-hidden border border-gray-100">
 
-  <div class="bg-white w-full max-w-md rounded-[2.5rem] shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300">
-
-    <div class="bg-orange-500 p-8 flex flex-col items-center text-white">
-      <div class="bg-white/20 p-4 rounded-3xl mb-4">
-        <i class="fa-solid fa-money-bill-transfer text-4xl"></i>
+    <!-- Header -->
+    <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-slate-900 text-white">
+      <div class="flex items-center gap-3">
+        <i class="fa-solid fa-hand-holding-dollar text-orange-500 text-xl"></i>
+        <h2 class="text-lg font-black" id="pagoNombreEmpleado">Pago Individual</h2>
       </div>
-      <h2 class="text-2xl font-bold">Procesar Nómina</h2>
-      <p class="text-orange-100 text-sm">Confirmación de pago masivo</p>
+      <button onclick="cerrarModalPago()" class="text-slate-400 hover:text-white transition-colors text-2xl">&times;</button>
     </div>
 
-    <form action="../../app/controllers/processPayroll.php" method="POST" class="p-8">
-      <div class="space-y-6">
+    <form action="../../app/controllers/payrollControll.php" method="POST" class="p-8 space-y-4">
+      <input type="hidden" name="action" value="process_single_payroll">
+      <input type="hidden" name="id_user" id="pagoIdUser">
+      <input type="hidden" name="amount" id="pagoMontoTotalOculto">
 
-        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100">
-          <div>
-            <p class="text-xs text-gray-400 font-bold uppercase">Periodo actual</p>
-            <p class="text-gray-700 font-bold">1ra Quincena Abril 2026</p>
-          </div>
-          <i class="fa-solid fa-calendar-day text-orange-400 text-xl"></i>
+      <!-- Inputs para Deducciones de Ley (Venezuela) -->
+      <input type="hidden" name="sso" id="hiddenSSO">
+      <input type="hidden" name="spf" id="hiddenSPF">
+      <input type="hidden" name="faov" id="hiddenFAOV">
+
+      <!-- Desglose Visual -->
+      <div class="bg-gray-50 p-5 rounded-3xl space-y-3 border border-gray-100">
+        <div class="flex justify-between text-xs font-bold">
+          <span class="text-gray-400 uppercase tracking-widest">Ingresos Totales</span>
+          <span class="text-gray-700" id="displayIngresos">$0.00</span>
         </div>
-
-        <div class="grid grid-cols-2 gap-4">
-          <div class="p-4 border border-gray-100 rounded-2xl">
-            <p class="text-[10px] text-gray-400 font-bold uppercase">Empleados</p>
-            <input type="text" class="text-xl font-black text-gray-800 outline-none" id="totalPersonal" readonly />
-          </div>
-          <div class="p-4 border border-gray-100 rounded-2xl">
-            <p class="text-[10px] text-gray-400 font-bold uppercase">Total a Pagar</p>
-            <input type="text" class="text-xl font-black text-green-600 outline-none" id="totalSalaryDisplay" readonly />
-          </div>
+        <div class="flex justify-between text-xs font-bold">
+          <span class="text-red-400 uppercase tracking-widest">Retenciones Ley (5.5%)</span>
+          <span class="text-red-600" id="displayDeducciones">-$0.00</span>
         </div>
-
-        <div>
-          <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Comentario de referencia</p>
-            <input type="text" name="reference" placeholder="Ej: Pago quincenal abril"
-              class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-orange-400 transition-all">
+        <hr class="border-dashed border-gray-200">
+        <div class="flex justify-between items-center pt-1">
+          <span class="text-slate-900 font-black">Neto a Pagar</span>
+          <span class="text-2xl font-black text-orange-600" id="displayTotal">$0.00</span>
         </div>
       </div>
 
-      <div class="flex gap-3 mt-8">
-        <button type="button" onclick="closePayroll()"
-          class="flex-1 py-3 text-gray-500 font-bold hover:bg-gray-50 rounded-2xl transition-all">
-          Cancelar
-        </button>
-        <button type="submit"
-          class="flex-1 py-3 bg-orange-500 text-white font-bold rounded-2xl shadow-lg shadow-orange-200 hover:bg-orange-600 transition-all">
+      <div class="flex flex-col gap-2">
+        <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Periodo Correspondiente</label>
+        <input type="text" name="periodo" value="<?= date('F Y') ?>"
+          class="bg-gray-50 border-none p-4 rounded-2xl outline-none focus:ring-2 focus:ring-orange-400 font-bold text-gray-700">
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Banco Emisor</label>
+        <select name="bank" class="bg-gray-50 border-none p-4 rounded-2xl outline-none focus:ring-2 focus:ring-orange-400 font-bold text-gray-700">
+          <option value="BBVA Provincial">BBVA Provincial</option>
+          <option value="Pago Móvil">Pago Móvil</option>
+          <option value="Banco de Venezuela">Banco de Venezuela</option>
+        </select>
+      </div>
+
+      <div class="flex flex-col gap-2 pt-4">
+        <button type="submit" class="w-full py-4 bg-slate-900 text-white font-black rounded-2xl shadow-xl hover:bg-orange-600 transition-all active:scale-95">
           Confirmar Pago
+        </button>
+        <button type="button" onclick="cerrarModalPago()" class="w-full py-3 text-gray-400 font-bold hover:bg-gray-100 rounded-2xl transition-colors">
+          Cancelar
         </button>
       </div>
     </form>

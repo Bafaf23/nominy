@@ -5,10 +5,13 @@ include "layout.php";
 include "../../app/models/Users.php";
 include "../../app/controllers/conexion.php";
 
-include "../components/molecule/modal_payroll.php";
+
 
 $userModel = new Users($conn);
 $works = $userModel->getUsers() ?: [];
+$nominaDetallada = $userModel->getNominaTotal() ?: [];
+
+
 
 /* $data = [
   [
@@ -35,87 +38,64 @@ $works = $userModel->getUsers() ?: [];
 ] */
 
 ?>
-<header>
-  <div class="flex justify-between">
+<header class="border-b border-gray-100 pb-4">
+  <div class="flex justify-between items-center">
     <div>
-      <h1 class="text-2xl font-bold text-gray-800">Historial de pago de nomina</h1>
-      <p class="text-sm text-gray-500">Historial de todo los pagos de nomina de empresa.</p>
+      <h1 class="text-2xl font-bold text-gray-800">Cierre de Nómina</h1>
+      <p class="text-sm text-gray-500">Resumen de pagos netos incluyendo bonificaciones.</p>
     </div>
-    <div>
-      <button onclick="openPayroll(<?php echo htmlspecialchars(json_encode($works)); ?>)" id="openPayroll" class="p-4 bg-slate-900 rounded-2xl text-white font-bold text-md">Pagar nomina</button>
-    </div>
+    <!-- Botón de Pago Masivo -->
+    <button onclick="confirmarPagoTotal()" class="p-3 rounded-xl bg-green-600 text-white font-bold cursor-pointer hover:bg-green-700 transition-all active:scale-95 shadow-lg shadow-green-100">
+      <i class="fa-solid fa-money-bill-transfer mr-2"></i>Pagar Nómina Total
+    </button>
   </div>
 </header>
 
-<section class="mt-5">
-  <?php if (empty($data)): ?>
-    <div class="flex flex-col items-center justify-center p-12 border-2 border-dashed border-gray-200 rounded-[3rem] bg-gray-50/50 my-10">
-      <div class="bg-white p-4 rounded-2xl shadow-sm mb-4">
-        <i class="fa-solid fa-receipt text-4xl text-gray-300"></i>
-      </div>
-      <h3 class="text-lg font-bold text-gray-700">Sin historial de pagos</h3>
-      <p class="text-gray-500 text-sm text-center max-w-xs mt-1">
-        Aún no se han procesado pagos de nómina de la empresa en este periodo.
-      </p>
-
-      <button onclick="location.reload()" class="mt-6 px-5 py-2 bg-white border border-gray-200 text-gray-600 rounded-xl text-sm font-bold hover:bg-gray-100 transition-all">
-        <i class="fa-solid fa-rotate-right mr-2"></i> Actualizar
-      </button>
-    </div>
-  <?php else : ?>
-    <?php foreach ($data as $item): ?>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 ">
-        <div class="bg-white border border-gray-200 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
-
-          <div class="flex justify-between items-start mb-4">
-            <div class="bg-orange-100 text-orange-600 p-3 rounded-2xl">
-              <i class="fa-solid fa-money-bill-transfer text-xl"></i>
-            </div>
-            <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-[10px] font-black uppercase">
-              <?php echo $item['status'] ?>
+<div class="mt-8 bg-white border border-gray-200 rounded-[2rem] overflow-hidden shadow-sm mb-10">
+  <table class="w-full text-left">
+    <thead>
+      <tr class="bg-gray-50/50 border-b border-gray-200">
+        <th class="p-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Trabajador</th>
+        <th class="p-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Sueldo Base</th>
+        <th class="p-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Bonos Activos</th>
+        <th class="p-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">Neto a Pagar</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-100">
+      <?php
+      $granTotal = 0;
+      foreach ($nominaDetallada as $item):
+        $netoIndividual = $item['salary'] + $item['total_bonos'];
+        $granTotal += $netoIndividual;
+      ?>
+        <tr class="hover:bg-green-50/30 transition-colors">
+          <td class="p-4">
+            <span class="block text-gray-700 font-bold text-sm"><?= $item['name'] . ' ' . $item['last_name'] ?></span>
+            <span class="block text-gray-400 text-[10px] uppercase"><?= $item['dni'] ?></span>
+          </td>
+          <td class="p-4 text-gray-600 font-medium">$<?= number_format($item['salary'], 2) ?></td>
+          <td class="p-4 text-green-600 font-bold">+$<?= number_format($item['total_bonos'], 2) ?></td>
+          <td class="p-4 text-center">
+            <span class="bg-slate-900 text-white text-xs px-4 py-2 rounded-xl font-black">
+              $<?= number_format($netoIndividual, 2) ?>
             </span>
-          </div>
-
-          <div class="mb-6">
-            <p class="text-xs text-gray-400 font-bold uppercase tracking-wider"><?php echo $item['periode'] ?></p>
-            <h3 class="text-3xl font-black text-gray-800 mt-1">
-              $<?php echo number_format($item['monto_pagado'], 2) ?>
-            </h3>
-          </div>
-
-          <div class="pt-4 border-t border-gray-100 flex justify-between items-center">
-            <div class="text-[11px] text-gray-400 leading-tight">
-              <p class="font-medium">Depósito: <span class="text-gray-600"><?php echo $item['bank'] ?></span></p>
-              <p>Fecha: <?php echo $item['date'] ?></p>
-            </div>
-
-            <a href="detalle_nomina.php?id=<?php echo $item['id'] ?? '123'; ?>"
-              class="bg-orange-50 text-orange-500 p-2.5 rounded-xl hover:bg-orange-500 hover:text-white transition-all group">
-              Ver recibo <i class="fa-solid fa-chevron-right text-xs"></i>
-            </a>
-          </div>
-
-        </div>
-      </div>
-
-    <?php endforeach; ?>
-  <?php endif; ?>
-</section>
+          </td>
+        </tr>
+      <?php endforeach; ?>
+      <tr class="bg-slate-50">
+        <td colspan="3" class="p-6 text-right text-xs font-black text-gray-400 uppercase tracking-widest">Total a Desembolsar:</td>
+        <td class="p-6 text-center">
+          <span class="text-2xl font-black text-orange-500">$<?= number_format($granTotal, 2) ?></span>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
 
 <script>
-  function openPayroll(data) {
+  function openPayroll() {
     const modal = document.getElementById("modalPay");
     const btn = document.getElementById("openPayroll");
-
-    const totalWorks = Object.keys(data).length;
-
-    let salaryTotal = 0
-    data.forEach(worker => {
-      salaryTotal += parseFloat(worker.salary)
-    })
-
-    document.getElementById("totalPersonal").value = totalWorks;
-    document.getElementById("totalSalaryDisplay").value = salaryTotal;
 
     modal.classList.remove("hidden")
     modal.classList.add("inline-flex")

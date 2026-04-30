@@ -1,42 +1,64 @@
 -- Desarrollador: Bryant Facenda
+-- Proyecto: Nominy - Sistema de Nómina
 CREATE DATABASE IF NOT EXISTS roster_db;
-
 USE roster_db;
 
 ---------------------------------------------------------
--- *1. DEFINICIÓN DEL SCHEMA (ESTRUCTURA)
+-- 1. TABLAS MAESTRAS (Sin dependencias)
 ---------------------------------------------------------
--- 1. Tablas Maestras (Independientes)
+
 CREATE TABLE IF NOT EXISTS roles(
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   name_role VARCHAR(255) NOT NULL UNIQUE,
   salary DECIMAL(10,2)
-)
+);
 
--- 2. Tabla bonos
 CREATE TABLE IF NOT EXISTS bonuses(
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   name_bonuses VARCHAR(255),
   amount DECIMAL(10,2)
-)
+);
 
--- 3. Tabla Bank
 CREATE TABLE IF NOT EXISTS bank(
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   name_bank VARCHAR(255) NOT NULL,
   account VARCHAR(255) UNIQUE NOT NULL
-)
+);
 
--- 4. deducciones 
-CREATE TABLE deductions (
+CREATE TABLE IF NOT EXISTS deductions (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    name_deduction VARCHAR(100) NOT NULL, -- Ejemplo: "Seguro Social (4%)"
+    name_deduction VARCHAR(100) NOT NULL,
     description TEXT,
-    type ENUM('percentage', 'fixed') DEFAULT 'fixed', -- Si es un % o un monto fijo
-    amount DECIMAL(10, 2) NOT NULL, -- El valor (ejemplo: 4.00 o 50.00)
+    type ENUM('percentage', 'fixed') DEFAULT 'fixed',
+    amount DECIMAL(10, 2) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+---------------------------------------------------------
+-- 2. TABLA DE USUARIOS
+---------------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS users(
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  dni VARCHAR(20) UNIQUE, 
+  name VARCHAR(255) NOT NULL,
+  last_name VARCHAR(255) NOT NULL,
+  email VARCHAR(255) UNIQUE NOT NULL,
+  pass VARCHAR(255) NOT NULL,
+  date_entry DATE,
+  id_role INT UNSIGNED,
+  id_bank INT UNSIGNED,
+  is_active TINYINT(1) DEFAULT 0,
+  registered_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+  FOREIGN KEY (id_role) REFERENCES roles(id) ON DELETE RESTRICT,
+  FOREIGN KEY (id_bank) REFERENCES bank(id) ON DELETE RESTRICT
+);
+
+---------------------------------------------------------
+-- 3. TABLAS RELACIONALES Y TRANSACCIONALES
+---------------------------------------------------------
 
 CREATE TABLE IF NOT EXISTS user_bonuses (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -47,47 +69,34 @@ CREATE TABLE IF NOT EXISTS user_bonuses (
     FOREIGN KEY (id_bonus) REFERENCES bonuses(id) ON DELETE CASCADE
 );
 
--- Tabla user
-CREATE TABLE IF NOT EXISTS users(
-  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  dni VARCHAR(20) UNIQUE, 
-  name VARCHAR(255) NOT NULL,
-  last_name VARCHAR(255) NOT NULL,
-  email VARCHAR(255) UNIQUE NOT NULL,
-  pass VARCHAR(255) NOT NULL,
-  date_entry DATE,
-  id_bonuses INT UNSIGNED,
-  id_role INT UNSIGNED,
-  id_bank INT UNSIGNED,
-
-  is_active TINYINT(1) DEFAULT 0,
-  registered_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-
-  FOREIGN KEY (id_bonuses) REFERENCES bonuses(id) ON DELETE SET NULL,
-  FOREIGN KEY (id_role) REFERENCES roles(id) ON DELETE RESTRICT,
-  FOREIGN KEY (id_bank) REFERENCES bank(id) ON DELETE RESTRICT
-);
-
--- 3. TABLA CLAVE: Historial de Pagos (Para las Cartas y Utilidad Real)
-CREATE TABLE IF NOT EXISTS payroll_history (
+-- Esta tabla es la que usa tu controlador para el pago individual
+CREATE TABLE IF NOT EXISTS individual_payments (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     id_user INT UNSIGNED NOT NULL,
-    payment_date DATE NOT NULL,          -- Cuándo se pagó
-    period_name VARCHAR(100),            -- Ejemplo: "1ra Quincena Abril"
-    base_salary_snapshot DECIMAL(10,2),  -- Guardamos el sueldo de ese momento
-    total_bonuses DECIMAL(10,2),
-    total_deductions DECIMAL(10,2),
-    net_amount DECIMAL(10,2),            -- Lo que llegó al banco
-    status ENUM('paid', 'pending', 'failed') DEFAULT 'paid',
+    amount DECIMAL(10,2) NOT NULL,       -- Monto Neto
+    sso_amount DECIMAL(10,2) DEFAULT 0,  -- 4%
+    spf_amount DECIMAL(10,2) DEFAULT 0,  -- 0.5%
+    faov_amount DECIMAL(10,2) DEFAULT 0, -- 1%
+    period VARCHAR(100),
+    bank VARCHAR(100),
+    payment_date DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (id_user) REFERENCES users(id) ON DELETE CASCADE
 );
 
+-- Historial para las tarjetas del dashboard
+CREATE TABLE IF NOT EXISTS payroll_history (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    status ENUM('PAID', 'PENDING', 'FAILED') DEFAULT 'PAID',
+    periode VARCHAR(100),
+    monto_pagado DECIMAL(10,2),
+    bank VARCHAR(100),
+    date DATETIME DEFAULT CURRENT_TIMESTAMP
+);
 
 ---------------------------------------------------------
--- *2. INSERCIÓN DE DATOS
+-- 4. INSERCIÓN DE DATOS INICIALES
 ---------------------------------------------------------
--- Roles
+
 INSERT INTO roles (name_role, salary) VALUES 
 ("Development", 1000), 
 ("RRHH", 500), 
@@ -96,13 +105,24 @@ INSERT INTO roles (name_role, salary) VALUES
 ("Design", 700), 
 ("Accounting and Sales", 800);
 
--- Bancos
 INSERT INTO bank (name_bank, account) VALUES 
-("BBVA", "1234567891211"), 
-("Banesco", "15536667891511"), 
-("Mercantil", "14345643876511");
+("BBVA Provincial", "0108-XXXX-XXXX-XXXX"), 
+("Banesco", "0134-XXXX-XXXX-XXXX"), 
+("Mercantil", "0105-XXXX-XXXX-XXXX");
 
--- Usuario Admin (Asegúrate que el id_role 2 existe - RRHH)
-INSERT INTO users (dni, name, last_name, email, pass, date_entry, id_role, id_bank) 
-VALUES ("V-00001", "Angelica", "Rivas", "superadmin@nominy.com", "admin123", "1999-01-01", 2, 1);
+INSERT INTO deductions (name_deduction, description, type, amount) VALUES 
+('SSO', 'Seguro Social (4%)', 'percentage', 4.00),
+('SPF', 'Paro Forzoso (0.5%)', 'percentage', 0.50),
+('FAOV', 'Vivienda y Hábitat (1%)', 'percentage', 1.00);
 
+INSERT INTO bonuses (name_bonuses, amount) VALUES 
+('Bono de Alimentación', 40.00),
+('Bono de Transporte', 20.00),
+('Bono por Asistencia', 15.00),
+('Bono de Productividad', 50.00),
+('Bono de Antigüedad', 30.00);
+
+-- Usuario Admin para el profesor
+-- Nota: La clave aquí es texto plano, recuerda usar password_hash en tu PHP
+INSERT INTO users (dni, name, last_name, email, pass, date_entry, id_role, id_bank, is_active) 
+VALUES ("V-00001", "Angelica", "Rivas", "superadmin@nominy.com", "admin123", "2026-01-01", 2, 1, 1);

@@ -19,6 +19,7 @@ $personal = $userModel->getUsers() ?: [];
 include "../components/molecule/modal_create_user.php";
 include "../components/molecule/modal_edit_user.php";
 include "../components/molecule/modal_buones.php";
+include "../components/molecule/modal_payroll.php";
 ?>
 
 
@@ -85,21 +86,26 @@ include "../components/molecule/modal_buones.php";
 
           <td class="p-4">
             <div class="flex gap-2 justify-center">
-              <button onclick='abrirModalEditar(<?php echo json_encode($usuario); ?>)'
-                class="w-9 h-9 flex items-center justify-center bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-600 hover:text-white transition-all cursor-pointer shadow-sm">
-                <i class="fa-solid fa-pen-to-square"></i>
-              </button>
-
-              <form action="../../app/controllers/userControll.php" method="POST" class="inline">
-                <input type="hidden" name="action" value="toggle_status">
-                <input type="hidden" name="user_id" value="<?php echo $usuario['id_usuario']; ?>">
-                <input type="hidden" name="new_status" value="<?php echo ($usuario['is_active'] == 1) ? '0' : '1'; ?>">
-
-                <button type="submit" class="w-9 h-9 flex items-center justify-center rounded-xl transition-all shadow-sm cursor-pointer <?php echo ($usuario['is_active'] == 1) ? 'bg-red-50 text-red-600 hover:bg-red-600 hover:text-white' : 'bg-green-50 text-green-600 hover:bg-green-600 hover:text-white'; ?>">
-                  <i class="fa-solid <?php echo ($usuario['is_active'] == 1) ? 'fa-user-slash' : 'fa-user-check'; ?>"></i>
+              <div class="flex gap-2 justify-center">
+                <button onclick='abrirModalPago(<?php echo json_encode($usuario); ?>)'
+                  class="w-9 h-9 flex items-center justify-center bg-green-50 text-green-600 rounded-xl hover:bg-green-600 hover:text-white transition-all shadow-sm cursor-pointer">
+                  <i class="fa-solid fa-money-check-dollar"></i>
                 </button>
-              </form>
-            </div>
+                <button onclick='abrirModalEditar(<?php echo json_encode($usuario); ?>)'
+                  class="w-9 h-9 flex items-center justify-center bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-600 hover:text-white transition-all cursor-pointer shadow-sm">
+                  <i class="fa-solid fa-pen-to-square"></i>
+                </button>
+
+                <form action="../../app/controllers/userControll.php" method="POST" class="inline">
+                  <input type="hidden" name="action" value="toggle_status">
+                  <input type="hidden" name="user_id" value="<?php echo $usuario['id_usuario']; ?>">
+                  <input type="hidden" name="new_status" value="<?php echo ($usuario['is_active'] == 1) ? '0' : '1'; ?>">
+
+                  <button type="submit" class="w-9 h-9 flex items-center justify-center rounded-xl transition-all shadow-sm cursor-pointer <?php echo ($usuario['is_active'] == 1) ? 'bg-red-50 text-red-600 hover:bg-red-600 hover:text-white' : 'bg-green-50 text-green-600 hover:bg-green-600 hover:text-white'; ?>">
+                    <i class="fa-solid <?php echo ($usuario['is_active'] == 1) ? 'fa-user-slash' : 'fa-user-check'; ?>"></i>
+                  </button>
+                </form>
+              </div>
           </td>
         </tr>
       <?php endforeach; ?>
@@ -158,6 +164,45 @@ include "../components/molecule/modal_buones.php";
 
   function closeBonus() {
     const modal = document.getElementById('modalBonus');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+  }
+
+  function abrirModalPago(u) {
+    const base = parseFloat(u.salary) || 0;
+    const bonos = parseFloat(u.total_bonos) || 0;
+    const extras = (parseFloat(u.holiday_pay) || 0) + (parseFloat(u.extra_hours_pay) || 0);
+
+    // Cálculos de Ley en Venezuela
+    const sso = base * 0.04;
+    const spf = base * 0.005;
+    const faov = base * 0.01;
+    const totalDeducciones = sso + spf + faov;
+
+    const totalNeto = (base + bonos + extras) - totalDeducciones;
+
+    // Asignar valores a los inputs ocultos para el controlador
+    document.getElementById('pagoIdUser').value = u.id_usuario;
+    document.getElementById('pagoMontoTotalOculto').value = totalNeto;
+
+    // Si creaste estos campos hidden en el modal:
+    document.getElementById('hiddenSSO').value = sso.toFixed(2);
+    document.getElementById('hiddenSPF').value = spf.toFixed(2);
+    document.getElementById('hiddenFAOV').value = faov.toFixed(2);
+
+    // Visual en el modal
+    document.getElementById('displayIngresos').innerText = `$${(base + bonos + extras).toFixed(2)}`;
+    document.getElementById('displayDeducciones').innerText = `-$${totalDeducciones.toFixed(2)}`;
+    document.getElementById('displayTotal').innerText = `$${totalNeto.toFixed(2)}`;
+
+    // Abrir modal
+    const modal = document.getElementById('modalPagoIndividual');
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+  }
+
+  function cerrarModalPago() {
+    const modal = document.getElementById('modalPagoIndividual');
     modal.classList.add('hidden');
     modal.classList.remove('flex');
   }

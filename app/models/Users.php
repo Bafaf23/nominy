@@ -213,4 +213,31 @@ class Users
     }
     return $data;
   }
+
+  public function getNominaTotal()
+  {
+    // Asegúrate de que los nombres de las tablas (users, user_bonuses, bonuses) 
+    // y columnas sean exactamente iguales a los de tu base de datos.
+    $sql = "SELECT 
+                u.id_usuario, 
+                u.name, 
+                u.last_name, 
+                u.dni, 
+                u.salary,
+                COALESCE(SUM(b.amount), 0) as total_bonos
+            FROM users u
+            LEFT JOIN user_bonuses ub ON u.id_usuario = ub.id_user
+            LEFT JOIN bonuses b ON ub.id_bonus = b.id
+            WHERE u.is_active = 1
+            GROUP BY u.id_usuario";
+
+    $result = $this->db->query($sql);
+
+
+    if (!$result) {
+      return [];
+    }
+
+    return $result->fetch_all(MYSQLI_ASSOC);
+  }
 }
