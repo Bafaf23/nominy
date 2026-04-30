@@ -4,6 +4,18 @@ require_once "../models/Users.php";
 
 class UserCotroll
 {
+  /**
+   * Procesa la solicitud de registro de un nuevo usuario desde el frontend.
+   * 
+   * Realiza las siguientes tareas de control:
+   * 1. Determina el flujo de redirección según el origen (Registro público o RRHH).
+   * 2. Valida la integridad de los datos (campos obligatorios y coincidencia de contraseñas).
+   * 3. Instancia el modelo 'Users' para ejecutar la persistencia en la base de datos.
+   * 4. Redirecciona al usuario con parámetros de estado (success/error) para notificaciones UI.
+   *
+   * @global mysqli $conn Instancia de conexión global a la base de datos.
+   * @return void Realiza redirecciones de cabecera (header) y finaliza la ejecución.
+   */
   public function handleRegister()
   {
     global $conn;
@@ -40,6 +52,20 @@ class UserCotroll
     }
   }
 
+  /**
+   * Gestiona el proceso de autenticación y la creación de la sesión de usuario.
+   * 
+   * Realiza las siguientes operaciones críticas:
+   * 1. Validación de entrada: Asegura que las credenciales no lleguen nulas.
+   * 2. Verificación de identidad: Invoca al modelo para validar email y contraseña.
+   * 3. Persistencia de estado: Inicia la sesión PHP y almacena un snapshot del perfil 
+   *    del usuario (DNI, Rol, Sueldo, Bonos) en la superglobal $_SESSION.
+   * 4. Control de flujo: Redirecciona al Dashboard en caso de éxito o al Login con 
+   *    mensajes de error descriptivos en caso de fallo.
+   *
+   * @global mysqli $conn Instancia de conexión global a la base de datos.
+   * @return void Ejecuta redirecciones HTTP y finaliza el script.
+   */
   public function handleLogin()
   {
     global $conn;
@@ -80,6 +106,19 @@ class UserCotroll
     }
   }
 
+
+  /**
+   * Gestiona el cambio de estado (Activo/Inactivo) de un trabajador.
+   * 
+   * Este controlador actúa como intermediario para:
+   * 1. Capturar el ID del usuario y el nuevo estado desde una solicitud POST.
+   * 2. Invocar al modelo 'Users' para persistir el cambio en la base de datos.
+   * 3. Manejar el flujo de redirección hacia la vista de gestión de personal, 
+   *    enviando parámetros de éxito o error para retroalimentación visual.
+   *
+   * @global mysqli $conn Instancia de conexión global a la base de datos.
+   * @return void Ejecuta la redirección y finaliza el proceso.
+   */
   public function handleToggleStatus()
   {
     global $conn;
@@ -101,6 +140,19 @@ class UserCotroll
     exit;
   }
 
+  /**
+   * Procesa la solicitud de actualización de datos de un trabajador.
+   * 
+   * Este controlador realiza las siguientes acciones:
+   * 1. Captura el conjunto de datos provenientes del formulario de edición (POST).
+   * 2. Coordina con el modelo 'Users' para ejecutar la actualización compleja 
+   *    que involucra tanto la tabla de usuarios como la de bancos.
+   * 3. Gestiona el flujo de redirección post-edición, informando al usuario 
+   *    sobre el resultado de la operación mediante parámetros en la URL.
+   *
+   * @global mysqli $conn Instancia de conexión global a la base de datos.
+   * @return void Redirecciona al panel de gestión de personal y finaliza el script.
+   */
   public function updateUser()
   {
     global $conn;
@@ -135,6 +187,15 @@ class UserCotroll
   }
 }
 
+/**
+ * Enrutador de Peticiones POST - Módulo de Usuarios.
+ * 
+ * Este flujo actúa como un despachador (Dispatcher) que:
+ * 1. Filtra las solicitudes para asegurar que solo se procesen métodos POST.
+ * 2. Evalúa el parámetro 'action' enviado desde los formularios.
+ * 3. Deriva la ejecución al método correspondiente de la clase 'UserCotroll'.
+ * 4. Implementa un caso por defecto (handleRegister) para capturar registros nuevos.
+ */
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $controller = new UserCotroll();
   if (isset($_POST['action']) && $_POST['action'] === 'login') {

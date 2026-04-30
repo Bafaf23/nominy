@@ -2,6 +2,21 @@
 
 include "conexion.php";
 
+/**
+ * Controlador de Asignación de Bonificaciones.
+ * 
+ * Este script gestiona la relación muchos-a-muchos entre usuarios y bonos:
+ * 1. Validación de Duplicidad: Verifica si el bono ya ha sido asignado al usuario 
+ *    para evitar registros redundantes en la tabla intermedia.
+ * 2. Persistencia de Relación: Inserta la vinculación en 'user_bonuses' mediante 
+ *    sentencias preparadas para garantizar la seguridad.
+ * 3. Feedback de Interfaz: Redirecciona al panel de personal con estados de 
+ *    éxito o error (ya existe/fallo BD).
+ * 
+ * @post int id_user  Identificador único del trabajador.
+ * @post int id_bonus Identificador del bono a asignar.
+ */
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
   $id_user = $_POST['id_user'];
   $id_bonus = $_POST['id_bonus'];

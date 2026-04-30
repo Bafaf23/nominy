@@ -69,21 +69,20 @@ CREATE TABLE IF NOT EXISTS user_bonuses (
     FOREIGN KEY (id_bonus) REFERENCES bonuses(id) ON DELETE CASCADE
 );
 
--- Esta tabla es la que usa tu controlador para el pago individual
+
 CREATE TABLE IF NOT EXISTS individual_payments (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     id_user INT UNSIGNED NOT NULL,
-    amount DECIMAL(10,2) NOT NULL,       -- Monto Neto
-    sso_amount DECIMAL(10,2) DEFAULT 0,  -- 4%
-    spf_amount DECIMAL(10,2) DEFAULT 0,  -- 0.5%
-    faov_amount DECIMAL(10,2) DEFAULT 0, -- 1%
+    amount DECIMAL(10,2) NOT NULL,      
+    sso_amount DECIMAL(10,2) DEFAULT 0,  
+    spf_amount DECIMAL(10,2) DEFAULT 0,  
+    faov_amount DECIMAL(10,2) DEFAULT 0,
     period VARCHAR(100),
     bank VARCHAR(100),
     payment_date DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (id_user) REFERENCES users(id) ON DELETE CASCADE
 );
 
--- Historial para las tarjetas del dashboard
 CREATE TABLE IF NOT EXISTS payroll_history (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     status ENUM('PAID', 'PENDING', 'FAILED') DEFAULT 'PAID',

@@ -1,13 +1,43 @@
 <?php
 class Users
 {
+  /**
+   * Propiedad privada que almacena la instancia de la conexión a la base de datos.
+   * @var mysqli
+   */
   private $db;
 
+  /**
+   * Constructor de la clase Users.
+   * 
+   * Inicializa la clase inyectando una conexión activa a la base de datos.
+   * Esto permite que todos los métodos de la clase compartan el mismo canal
+   * de comunicación con el servidor MySQL, optimizando el uso de recursos.
+   *
+   * @param mysqli $data_base_conextion Objeto de conexión (producido por mysqli_connect).
+   */
   public function __construct($data_base_conextion)
   {
     $this->db = $data_base_conextion;
   }
 
+  /**
+   * Registra un nuevo usuario/trabajador en el sistema.
+   * 
+   * Realiza un proceso de registro seguro en tres pasos:
+   * 1. Validación de Duplicidad: Verifica si el email ya existe para evitar registros duplicados.
+   * 2. Encriptación: Aplica un hash robusto (BCRYPT) a la contraseña antes de almacenarla.
+   * 3. Inserción Segura: Utiliza sentencias preparadas para guardar los datos personales y credenciales.
+   *
+   * @param string $dni      Documento Nacional de Identidad (V-XXXXXXXX).
+   * @param string $name     Nombre(s) del trabajador.
+   * @param string $lastName Apellido(s) del trabajador.
+   * @param string $email    Correo electrónico (se usa como identificador único).
+   * @param string $pass     Contraseña en texto plano (será encriptada).
+   * 
+   * @return bool|string     Retorna true si el registro fue exitoso, un mensaje de error 
+   *                         si el usuario existe, o false si ocurre una falla técnica.
+   */
   public function register($dni, $name, $lastName, $email, $pass)
   {
     try {
@@ -94,7 +124,18 @@ class Users
     return false;
   }
 
-
+  /**
+   * Obtiene el listado exhaustivo de usuarios con sus perfiles laborales y financieros.
+   * 
+   * Realiza una consulta multitabla (JOIN) para consolidar:
+   * 1. Información personal (nombre, DNI, email).
+   * 2. Información laboral (cargo y sueldo base).
+   * 3. Información bancaria (entidad y número de cuenta).
+   * 4. Resumen de beneficios: concatena los nombres de los bonos y suma sus montos.
+   *
+   * @return array|false Devuelve un array de arreglos asociativos con los datos 
+   *                     consolidados, o false si no existen registros.
+   */
   public function getUsers()
   {
     $sql = "SELECT 
@@ -138,7 +179,17 @@ class Users
     return !empty($users) ? $users : false;
   }
 
-
+  /**
+   * Cambia el estado de activación de un usuario (Soft Delete / Reactivación).
+   * 
+   * Este método permite habilitar o deshabilitar el acceso de un usuario al sistema
+   * sin eliminar sus datos de la base de datos, manteniendo la integridad referencial.
+   *
+   * @param int $id     Identificador único del usuario (Primary Key).
+   * @param int $status Estado deseado: 1 para Activo, 0 para Inactivo.
+   * 
+   * @return bool Devuelve true si la actualización fue exitosa, false en caso de error.
+   */
   public function updateStatus($id, $status)
   {
     $status = ($status == 1) ? 1 : 0;
@@ -154,6 +205,26 @@ class Users
     return $result;
   }
 
+  /**
+   * Actualiza la información integral de un usuario y sus datos bancarios.
+   * 
+   * Este método realiza una gestión inteligente de datos:
+   * 1. Verifica si el usuario ya posee un registro en la tabla 'bank'.
+   * 2. Si no existe, crea el registro bancario y vincula el nuevo ID al usuario.
+   * 3. Si existe, actualiza los datos bancarios actuales.
+   * 4. Finalmente, actualiza los datos personales y de rol en la tabla 'users'.
+   *
+   * @param int    $id        ID del usuario a actualizar.
+   * @param string $name      Nombre(s) del trabajador.
+   * @param string $date      Fecha de ingreso al sistema.
+   * @param string $lastName  Apellido(s) del trabajador.
+   * @param int    $role      ID del rol/cargo asignado.
+   * @param string $email     Correo electrónico institucional.
+   * @param string $nameBank  Nombre de la entidad bancaria.
+   * @param string $account   Número de cuenta bancaria (20 dígitos).
+   * 
+   * @return bool Devuelve true si toda la operación fue exitosa.
+   */
   public function updateUser($id, $name, $date, $lastName, $role, $email, $nameBank, $account)
   {
 
@@ -203,6 +274,16 @@ class Users
     return $result;
   }
 
+  /**
+   * Recupera el catálogo completo de bonificaciones configuradas en el sistema.
+   * 
+   * Este método consulta la tabla 'bonuses' para obtener todos los beneficios 
+   * disponibles, ordenándolos alfabéticamente para facilitar su selección 
+   * en interfaces de usuario (selects, checklists, etc.).
+   *
+   * @return array Lista de arreglos asociativos, donde cada elemento contiene 
+   *               los detalles del bono (id, name_bonuses, amount).
+   */
   public function getAvailableBonuses()
   {
     $sql = "SELECT * FROM bonuses ORDER BY name_bonuses ASC";
@@ -214,10 +295,18 @@ class Users
     return $data;
   }
 
+  /**
+   * Calcula el resumen consolidado de ingresos para todos los trabajadores activos.
+   * 
+   * Realiza una agregación de datos combinando el sueldo base con las 
+   * bonificaciones asignadas. Utiliza LEFT JOIN para garantizar que los 
+   * empleados sin bonos también aparezcan en el listado con un valor de cero.
+   *
+   * @return array Lista de empleados con su sueldo base y el sumatorio total 
+   *               de sus bonificaciones. Retorna un array vacío si falla la consulta.
+   */
   public function getNominaTotal()
   {
-    // Asegúrate de que los nombres de las tablas (users, user_bonuses, bonuses) 
-    // y columnas sean exactamente iguales a los de tu base de datos.
     $sql = "SELECT 
                 u.id_usuario, 
                 u.name, 
